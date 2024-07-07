@@ -84,4 +84,49 @@ namespace pptb::utils
             return r_try_parse(iss, datas...);
         }
     };
+
+	struct file_directory_t
+	{
+		std::size_t nFiles;
+		std::vector<std::string> filenames;
+
+		file_directory_t()
+		{
+			print("Parsing provided directory...");
+
+			// Build command string
+			auto cmd_out = std::system("ls data > files.log");
+
+			// Open file
+			ascii_file_t file("files.log");
+
+			// Loop until EOF
+			nFiles = 0;
+			while (!file.eof())
+			{
+				// Next line
+				file.next_line();
+
+				// EOF?
+				if (file.eof()) break;
+
+				// Store filename
+				filenames.push_back("data/"+file.p_line);
+
+				// Count files
+				nFiles++;
+			}
+
+			print("Number of files found =  ",nFiles);
+		}
+	};
+
+	template <typename vec_t>
+	inline vec_t cross_prod(const vec_t& a, const vec_t& b) { return {a[1]*b[2] - a[2]*b[1], a[2]*b[0] - a[0]*b[2], a[0]*b[1] - a[1]*b[0]}; }
+
+	template <typename vec_t>
+	inline auto dot_prod(const vec_t& a, const vec_t& b) { return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; }
+
+	template <typename vec_t>
+	inline auto array_norm(const vec_t& a, const vec_t& b) { return sqrt(pow(a[0] - b[0],2) + pow(a[1] - b[1],2) + pow(a[2] - b[2],2)); }
 }

@@ -48,8 +48,13 @@ namespace pptb::io
 
 			// Parse line
 			fh.parse(ielem, connect[0], connect[1], connect[2], comp);
+
+			// Switch to 0-based system
+			connect--;
 		}
 
+		fh.fh.close();
+		
 		print("Import fro complete! nElem, nVerts = ",nElem, nVerts);
 		
 	};
