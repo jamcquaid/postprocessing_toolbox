@@ -48,7 +48,7 @@ namespace pptb::analysis
 			{
 				if (slice_plane_in[n] == "XY" || slice_plane_in[n] == "YX")
 				{
-					slice_plane[n] = 0;
+					slice_plane[n] = 2;
 					planes[n].nvec = {0.0, 0.0, 1.0};
 					planes[n].tvec = {1.0, 0.0, 0.0};
 					planes[n].mvec = utils::cross_prod(planes[n].nvec, planes[n].tvec);
@@ -62,7 +62,7 @@ namespace pptb::analysis
 				}
 				else if (slice_plane_in[n] == "YZ" || slice_plane_in[n] == "ZY")
 				{
-					slice_plane[n] = 2;
+					slice_plane[n] = 1;
 					planes[n].nvec = {1.0, 0.0, 0.0};
 					planes[n].tvec = {0.0, 1.0, 0.0};
 					planes[n].mvec = utils::cross_prod(planes[n].nvec, planes[n].tvec);
