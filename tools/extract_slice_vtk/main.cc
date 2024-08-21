@@ -22,7 +22,7 @@ int main(int argc, char** argv)
 	
 	// Setup slice operator
 	const std::size_t num_slices = 7;
-	const std::array<std::string, num_slices> slice_plane{"XZ","XZ","XZ","XZ","XZ","XZ","XZ"};
+	const std::array<std::string, num_slices> slice_plane{"XY","XY","XY","XY","XY","XY","XY"};
 	const std::array<real_t, num_slices> slice_pos{0.23926, 0.526372, 0.777595, 0.95704, 1.07667, 1.148448, 1.184337};
 	const bool normalize_coord = true;
 	const int normalize_dir    = 0;

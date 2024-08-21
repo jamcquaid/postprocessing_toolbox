@@ -9,14 +9,14 @@ int main(int argc, char** argv)
 	for (int n = 0; n<argc; n++) args.push_back(std::string(argv[n]));
     std::string input_filename  = "geom.fro";
 	std::string output_filename = "geom.vtk";
-    if (args.size() == 2)
+    if (argc > 1)
     {
         input_filename  = args[1];
-		if (args.size() == 3) output_filename = args[2];
+		if (argc > 2) output_filename = args[2];
     }
 
 	// Call fro file importer
-	using geom_t = pptb::io::surf_geom_t<real_t>;
+	using geom_t = pptb::geom::surf_geom_t<real_t>;
 	geom_t geom;
 	pptb::io::import_fro(input_filename, geom);
 

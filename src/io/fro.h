@@ -50,7 +50,9 @@ namespace pptb::io
 			fh.parse(ielem, connect[0], connect[1], connect[2], comp);
 
 			// Switch to 0-based system
-			connect--;
+			connect[0]--;
+			connect[1]--;
+			connect[2]--;
 		}
 
 		fh.fh.close();
