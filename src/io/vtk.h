@@ -47,7 +47,7 @@ namespace pptb::io
 	}
 
 	template <typename rtype, typename geom_t, const vtk_file_type file_type = surface_vtk>
-	inline void write_vtk_data(const std::string& filename, const geom_t& geom, const auto& maxVars = 10000)
+	inline void write_vtk_data(const std::string& filename, const geom_t& geom, const std::size_t& maxVars = 10000)
 	{
 		if constexpr(file_type == surface_vtk)
 		{
@@ -65,10 +65,22 @@ namespace pptb::io
 				fh << geom.nodes[i][1] << " ";
 				fh << geom.nodes[i][2] << "\n";
 			}
-			fh << "POLYGONS " << geom.connect.size() << " " << 4*geom.connect.size() << "\n";
+			if (geom.maxNpe>2)
+			{
+				fh << "POLYGONS " << geom.connect.size() << " " << (geom.maxNpe+1)*geom.connect.size() << "\n";
+			}
+			else
+			{
+				fh << "LINES " << geom.connect.size() << " " << (geom.maxNpe+1)*geom.connect.size() << "\n";
+			}
 			for (std::size_t i = 0; i < geom.connect.size(); ++i)
 			{
-				fh << "3 " << geom.connect[i][0] << " " << geom.connect[i][1] << " " << geom.connect[i][2] << "\n";
+				fh << geom.maxNpe << " ";
+				for (int j = 0; j<geom.maxNpe; ++j)
+				{
+					fh<<geom.connect[i][j]<<" ";
+				}
+				fh<<std::endl;
 			}
 			fh << "CELL_DATA " << geom.connect.size() << "\n";
 

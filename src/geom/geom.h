@@ -7,6 +7,7 @@ namespace pptb::geom
 		using value_type = rtype;
 		using vec_t = std::array<value_type, 3>;
 
+		int maxNpe = 3;
 		std::vector<vec_t> nodes;
 		std::vector<std::array<std::size_t, 3>> connect;
 		std::vector<int> components;

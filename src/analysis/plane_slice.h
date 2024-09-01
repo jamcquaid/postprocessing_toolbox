@@ -1,6 +1,6 @@
 namespace pptb::analysis
 {
-	template <typename rtype>
+	template<std::floating_point rtype>
 	struct plane_t
 	{
 		using value_type = rtype;
@@ -11,8 +11,15 @@ namespace pptb::analysis
 		std::array<value_type, 3> mvec; // plane tangential vector 2
 		std::array<value_type, 3> pt;
 	};
+
+	template<std::floating_point rtype>
+	struct sliceElement_t
+	{
+		rtype xyz[3];
+		rtype data[100];
+	};
 	
-	template <typename rtype, const std::size_t num_slices>
+	template <std::floating_point rtype, const std::size_t num_slices>
 	struct plane_slice_t
 	{
 		using value_type  = rtype;
@@ -149,6 +156,8 @@ namespace pptb::analysis
 			for (int islice = 0; islice<nslice(); islice++)
 			{
 				print("   Extracting data on slice plane ",islice);
+				const int tdir1 = std::abs(0*planes[islice].tvec[0] + 1*planes[islice].tvec[1] + 2*planes[islice].tvec[2]);
+				const int tdir2 = std::abs(0*planes[islice].mvec[0] + 1*planes[islice].mvec[1] + 2*planes[islice].mvec[2]);
 
 				// Sweep all elements on provided surface
 				std::vector<std::size_t> elemRange; // List of elements close to plane
@@ -184,7 +193,8 @@ namespace pptb::analysis
 				}
 
 				// Select slice plane data storage
-				auto& slice = slice_data[islice];
+				auto& slice  = slice_data[islice];
+				slice.maxNpe = 2; // Planar vtk
 
 				// Set cross-section memory
 				slice.nodes.resize(elemIntersect.size());
@@ -197,10 +207,12 @@ namespace pptb::analysis
 					auto& data_loc = slice.data[i];
 					data_loc.resize(elemIntersect.size());
 				}
-				
+
 				// First, sweep points intersecting the plane and build the plane cross-section
 				value_type minL =   1e9;
 				value_type maxL = - 1e9;
+				std::vector<value_type> geom_centroid;
+				geom_centroid.resize(3, 0.0);
 				for (int n = 0; n<elemIntersect.size(); n++)
 				{
 					// Element ID
@@ -218,23 +230,71 @@ namespace pptb::analysis
 					// Find maximum coordinate extent in normalization direction
 					if (slice.nodes[n][normalize_dir]<minL) minL = slice.nodes[n][normalize_dir];
 					if (slice.nodes[n][normalize_dir]>maxL) maxL = slice.nodes[n][normalize_dir];
+
+					// Geometry midpoint
+					geom_centroid[0] += slice.nodes[n][0] / value_type(elemIntersect.size());
+					geom_centroid[1] += slice.nodes[n][1] / value_type(elemIntersect.size());
+					geom_centroid[2] += slice.nodes[n][2] / value_type(elemIntersect.size());
+				}
+
+				// Assemble structure to be sorted
+				std::vector<sliceElement_t<value_type>> sliceElements;
+				sliceElements.resize(elemIntersect.size());
+				for (int n = 0; n<elemIntersect.size(); n++)
+				{
+					sliceElements[n].xyz[0] = slice.nodes[n][0];
+					sliceElements[n].xyz[1] = slice.nodes[n][1];
+					sliceElements[n].xyz[2] = slice.nodes[n][2];
+					for (int ivar = 0; ivar<slice.varnames.size(); ivar++)
+						sliceElements[n].data[ivar] = slice.data[ivar][n];
+				}
+
+				// Comparison function
+				auto compare = [&](const sliceElement_t<value_type>& elemA, const sliceElement_t<value_type>& elemB)
+				{
+					const value_type phiA = atan2(elemA.xyz[tdir2] - geom_centroid[tdir2], elemA.xyz[tdir1] - geom_centroid[tdir1]);
+					const value_type phiB = atan2(elemB.xyz[tdir2] - geom_centroid[tdir2], elemB.xyz[tdir1] - geom_centroid[tdir1]);
+					return phiA > phiB;
+				};
+				
+				// Sort points
+				std::sort(sliceElements.begin(), sliceElements.end(), compare);
+
+				// Push data back into slice geom
+				for (int n = 0; n<elemIntersect.size(); n++)
+				{
+					slice.nodes[n][0] = sliceElements[n].xyz[0];
+					slice.nodes[n][1] = sliceElements[n].xyz[1];
+					slice.nodes[n][2] = sliceElements[n].xyz[2];
+					for (int ivar = 0; ivar<slice.varnames.size(); ivar++)
+						slice.data[ivar][n] = sliceElements[n].data[ivar];
+				}
+				
+				// Set connectivity
+				for (int n = 0; n<elemIntersect.size(); n++)
+				{
+					auto& list = slice.connect[n];
+					list[0] = n;
+					list[1] = n+1;
+					if (list[1]>elemIntersect.size()-1) list[1] = 0;
 				}
 
 				// If normalizing, adjust coordinates now
 				if (normalize_coord)
 				{
 					// Tangential directions to normalization
-					int tdir1  = normalize_dir + 1;
-					if (tdir1>=3) tdir1 -= 3;
-					int tdir2 = normalize_dir + 2;
-					if (tdir2>=3) tdir2 -=3;
+					int ntdir1  = normalize_dir + 1;
+					if (ntdir1>=3) ntdir1 -= 3;
+					int ntdir2 = normalize_dir + 2;
+					if (ntdir2>=3) ntdir2 -= 3;
+					
 					// Loop over nodes again
 					for (int n = 0; n<slice.nodes.size(); n++)
 					{
 						// Correct coordinates
 						slice.nodes[n][normalize_dir] = (slice.nodes[n][normalize_dir] - minL) / (maxL - minL);
-						slice.nodes[n][tdir1]         = slice.nodes[n][tdir1] / (maxL - minL);
-						slice.nodes[n][tdir2]         = slice.nodes[n][tdir2] / (maxL - minL);
+						slice.nodes[n][ntdir1]         = slice.nodes[n][ntdir1] / (maxL - minL);
+						slice.nodes[n][ntdir2]         = slice.nodes[n][ntdir2] / (maxL - minL);
 					}
 				}
 				

@@ -1,6 +1,6 @@
 namespace pptb::analysis
 {
-	template <typename rtype>
+	template <std::floating_point rtype>
 	struct timeAverage_t
 	{
 		using value_type = rtype;
