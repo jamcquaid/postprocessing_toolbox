@@ -129,4 +129,19 @@ namespace pptb::utils
 
 	template <typename vec_t>
 	inline auto array_norm(const vec_t& a, const vec_t& b) { return sqrt(pow(a[0] - b[0],2) + pow(a[1] - b[1],2) + pow(a[2] - b[2],2)); }
+
+	template <std::floating_point rtype, const int nrows, const int ncols = nrows>
+	struct mat_t
+	{
+		rtype data[nrows*nrows];
+
+		constexpr static std::size_t num_rows() { return nrows;}
+		constexpr static std::size_t num_cols() { return ncols;}
+		constexpr static std::size_t size() { return num_rows()*num_cols(); }
+
+		mat_t(){}
+		
+		rtype& operator () (const int& row, const int& col) { return data[col+row*num_cols()]; }
+		const rtype& operator () (const int& row, const int& col) const { return data[col+row*num_cols()]; }
+	};
 }

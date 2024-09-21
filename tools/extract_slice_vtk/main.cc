@@ -11,8 +11,8 @@ int main(int argc, char** argv)
 	std::string output_filename = "slice_export.dat";
     if (args.size() > 1)
     {
-        input_filename  = args[1];
-		if (args.size()>2) output_filename = args[2];
+        input_filename  = args[1] + ".vtk";
+		output_filename = args[1] + "_slices.dat";
     }
 	
 	// Call vtk file importer
