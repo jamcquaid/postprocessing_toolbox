@@ -27,10 +27,7 @@ int main(int argc, char** argv)
 	std::string varname = "Components";
 	auto modify = [&](const auto& xyz, const auto& oldComp)
 	{
-		int newComp = oldComp;
-
-		if (xyz[0]<0.01524)
-			newComp = 7;
+		int newComp = 1;
 		
 		return newComp;
 	};

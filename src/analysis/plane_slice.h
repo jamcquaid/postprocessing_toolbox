@@ -1,3 +1,5 @@
+#include <algorithm>
+
 namespace pptb::analysis
 {
 	template<std::floating_point rtype>
@@ -19,7 +21,7 @@ namespace pptb::analysis
 		rtype data[100];
 	};
 	
-	template <std::floating_point rtype, const std::size_t num_slices>
+	template <std::floating_point rtype>
 	struct plane_slice_t
 	{
 		using value_type  = rtype;
@@ -27,15 +29,14 @@ namespace pptb::analysis
 		using vec_t = std::array<value_type, 3>;
 		
 		// Member variables
-		std::array<surf_geom_t, num_slices> slice_data; // Cross-section geometry and data
-		std::array<std::size_t, num_slices> slice_plane; // Slice plane
-		std::array<value_type, num_slices> slice_pos; // Slice position in plane normal direction
-		std::array<plane_t<value_type>, num_slices> planes; // Slice plane basis
+		std::vector<std::string> slice_name;
+		std::vector<surf_geom_t> slice_data; // Cross-section geometry and data
+		std::vector<std::size_t> slice_plane; // Slice plane
+		std::vector<value_type> slice_pos; // Slice position in plane normal direction
+		std::vector<plane_t<value_type>> planes; // Slice plane basis
 		bool normalize_coord = false;
 		int normalize_dir    = 0;
-		
-		// Some functions
-		constexpr static int nslice(){return num_slices;}
+		int nslice;
 
 		// Get coordinate on plane
 		inline vec_t get_plane_pt(const auto& iplane)
@@ -46,13 +47,24 @@ namespace pptb::analysis
 		}
 		
 		// Constructor --> slice select based on Cartesian planes
-	    plane_slice_t(const std::array<std::string, num_slices>& slice_plane_in, const auto& slice_pos_in, const bool& norm_coord_in = false, const int& norm_dir_in = 0)
+	    plane_slice_t(const auto& slice_name_in, const auto& slice_plane_in, const auto& slice_pos_in, const bool& norm_coord_in = false, const int& norm_dir_in = 0)
 			: slice_pos{slice_pos_in}, normalize_coord{norm_coord_in}, normalize_dir{norm_dir_in}
 		{
 			print("Initializing slice operator...");
 
-			for (int n = 0; n<nslice(); n++)
+			// Number of plane slices
+			nslice = slice_pos.size();
+
+			// Allocate memory
+			slice_name.resize(nslice);
+			slice_data.resize(nslice);
+			slice_plane.resize(nslice);
+			slice_pos.resize(nslice);
+			planes.resize(nslice);
+			
+			for (int n = 0; n<nslice; n++)
 			{
+				slice_name[n] = slice_name_in[n];
 				if (slice_plane_in[n] == "XY" || slice_plane_in[n] == "YX")
 				{
 					slice_plane[n] = 2;
@@ -69,7 +81,7 @@ namespace pptb::analysis
 				}
 				else if (slice_plane_in[n] == "YZ" || slice_plane_in[n] == "ZY")
 				{
-					slice_plane[n] = 1;
+					slice_plane[n] = 0;
 					planes[n].nvec = {1.0, 0.0, 0.0};
 					planes[n].tvec = {0.0, 1.0, 0.0};
 					planes[n].mvec = utils::cross_prod(planes[n].nvec, planes[n].tvec);
@@ -83,7 +95,7 @@ namespace pptb::analysis
 				// Set plane point
 				planes[n].pt = get_plane_pt(n);
 				
-				print("   Slice = ",n," plane,ID = ",slice_plane[n],slice_plane_in[n]);
+				print("   Slice = ",n," name = ",slice_name[n], " plane,ID = ",slice_plane[n],slice_plane_in[n]);
 				print("      nvec = ",planes[n].nvec[0], planes[n].nvec[1], planes[n].nvec[2]);
 				print("      tvec = ",planes[n].tvec[0], planes[n].tvec[1], planes[n].tvec[2]);
 				print("      mvec = ",planes[n].mvec[0], planes[n].mvec[1], planes[n].mvec[2]);
@@ -153,7 +165,7 @@ namespace pptb::analysis
 			print("Search radius        = ",search_radius);
 			
 			// Loop slice planes
-			for (int islice = 0; islice<nslice(); islice++)
+			for (int islice = 0; islice<nslice; islice++)
 			{
 				print("   Extracting data on slice plane ",islice);
 				const int tdir1 = std::abs(0*planes[islice].tvec[0] + 1*planes[islice].tvec[1] + 2*planes[islice].tvec[2]);
@@ -309,10 +321,10 @@ namespace pptb::analysis
 			std::ofstream fh(filename);
 
 			// Slice number
-			const std::string slice_name = "SLICE EXTRACTION";
+			const std::string slice_tmp = "SLICE EXTRACTION";
 				
 			// Write file title
-			fh << "TITLE = \"" << slice_name << "\" \n";
+			fh << "TITLE = \"" << slice_tmp << "\" \n";
 
 			// Build next header line
 			std::string var_header = "VARIABLES = \"x\",\"y\",\"z\",";
@@ -330,7 +342,7 @@ namespace pptb::analysis
 			}
 			fh << var_header << "\n";
 			
-			for (int islice = 0; islice<nslice(); islice++)
+			for (int islice = 0; islice<nslice; islice++)
 			{
 				print("   Exporting slice = ",islice);
 
@@ -338,7 +350,7 @@ namespace pptb::analysis
 				const auto& slice = slice_data[islice];
 
 				// Last header line
-				const std::string slice_no = "SLICE EXTRACTION "+std::to_string(islice);
+				const std::string slice_no = slice_name[islice];
 				fh << "ZONE T = \"" << slice_no << "\", I = " << slice.nodes.size() << "\n";
 
 				// Sweep data points

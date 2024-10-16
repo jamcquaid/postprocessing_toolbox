@@ -1,19 +1,39 @@
 #include "pptb.h"
+#include "scidf.h"
 
-using real_t = float;
+using real_t = double;
 
 int main(int argc, char** argv)
 {
-	// Parse input filename
-	std::vector<std::string> args;
-	for (int n = 0; n<argc; n++) args.push_back(std::string(argv[n]));
-    std::string input_filename  = "surf.vtk";
-	std::string output_filename = "slice_export.dat";
-    if (args.size() > 1)
-    {
-        input_filename  = args[1] + ".vtk";
-		output_filename = args[1] + "_slices.dat";
-    }
+	// input filename
+	const std::string ifile = "input.sdf";
+	scidf::node_t input;
+	scidf::read(ifile, input);
+
+	std::string input_filename  = input["Config"]["input_filename"];
+	std::string output_filename = input["Config"]["output_filename"];
+
+	// Slice settings
+	scidf::node_t& node = input["Config"]["Slices"];
+	std::vector<std::string> slice_name;
+	std::vector<std::string> slice_plane;
+	std::vector<real_t> slice_pos;
+	const bool normalize_coord = input["Config"]["normalize_coord"];
+	const int  normalize_dir   = input["Config"]["normalize_dir"];
+	for (auto& p: node.children)
+	{
+		const std::string name    = p.first;
+		scidf::node_t& node_local = p.second;
+
+		// Slice settings
+		std::string plane_tmp = node_local["slice_plane"];
+		real_t pos_tmp        = node_local["position"];
+
+		// Push into vector
+		slice_name.push_back(name);
+		slice_plane.push_back(plane_tmp);
+		slice_pos.push_back(pos_tmp);
+	}
 	
 	// Call vtk file importer
 	using geom_t = pptb::geom::surf_geom_t<real_t>;
@@ -21,12 +41,7 @@ int main(int argc, char** argv)
 	pptb::io::import_vtk(input_filename, geom);
 	
 	// Setup slice operator
-	const std::size_t num_slices = 7;
-	const std::array<std::string, num_slices> slice_plane{"XY","XY","XY","XY","XY","XY","XY"};
-	const std::array<real_t, num_slices> slice_pos{0.23926, 0.526372, 0.777595, 0.95704, 1.07667, 1.148448, 1.184337};
-	const bool normalize_coord = true;
-	const int normalize_dir    = 0;
-	pptb::analysis::plane_slice_t<real_t, num_slices> plane_slice(slice_plane, slice_pos, normalize_coord, normalize_dir);
+	pptb::analysis::plane_slice_t<real_t> plane_slice(slice_name, slice_plane, slice_pos, normalize_coord, normalize_dir);
 
 	// Run slice operation on specified geometry structure
 	plane_slice.extract_data(geom);

@@ -18,8 +18,9 @@ hflags += -fconcepts-diagnostics-depth=3 -fmax-errors=1
 ifeq (${sanny},1)
 hflags += -fsanitize=undefined,address -fstack-protector-all
 endif
-
+ifeq (${gee},1)
 hflags += -g
+endif
 
 hflags += -std=c++20 -O3
 hflags += ${compflags}
@@ -31,7 +32,10 @@ dflags += -std=c++20 -O3 #-prec-div=false
 dflags += -ccbin=${cc_h}
 dflags += --extended-lambda
 dflags += -w
+
+ifeq (${gee},1)
 dflags += -lineinfo
+endif
 
 #dflags += --expt-relaxed-constexpr
 #dflags += --verbose --keep
@@ -42,7 +46,7 @@ cc := ${cc_h}
 flags := ${hflags}
 
 main:
-	${cc} ${flags} -I${PPTB}/src main.cc -o ${target}
+	${cc} ${flags} -I${PPTB}/src -I${SCIDF}/src main.cc -o ${target}
 
 run: main
 	./${target}

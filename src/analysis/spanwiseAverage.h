@@ -7,23 +7,24 @@ namespace pptb::analysis
 
 		// Geometry structure
 		geom::surf_geom_t<value_type> geom;
-		
 
-	    spanwiseAverage_t(const geom::surf_geom_t<value_type>& geom3D, const int& idir)
+		const std::string out_file;
+
+	    spanwiseAverage_t(const geom::surf_geom_t<value_type>& geom3D, const std::string& out_file_in, const int& idir) : out_file{out_file_in}
 		{
 			print("Spanwise averaging...");
 
 			// First, slice the 3D geometry we were provided to get sampling points on 2D plane
 			print("Slicing 3D structure...");
-			const std::size_t num_slices = 1;
-			std::array<std::string, num_slices> slice_plane;
-			if (idir == 0) slice_plane[0] = {"YZ"};
-			if (idir == 1) slice_plane[0] = {"XZ"};
-			if (idir == 2) slice_plane[0] = {"XY"};
-			const std::array<value_type, num_slices> slice_pos{0.0};
+			std::vector<std::string> slice_name{"spanwiseAverage"};
+			std::vector<std::string> slice_plane;
+			if (idir == 0) slice_plane.push_back("YZ");
+			if (idir == 1) slice_plane.push_back("XZ");
+			if (idir == 2) slice_plane.push_back("XY");
+			const std::vector<value_type> slice_pos{0.0};
 			const bool normalize_coord    = false;
 			const bool normalize_dir      = 0;
-			plane_slice_t<value_type, num_slices> plane_slice(slice_plane, slice_pos, normalize_coord, normalize_dir);
+			plane_slice_t<value_type> plane_slice(slice_name, slice_plane, slice_pos, normalize_coord, normalize_dir);
 
 			// Slice data
 			plane_slice.extract_data(geom3D);
@@ -156,7 +157,10 @@ namespace pptb::analysis
 			print("Exporting data to tecplot file...");
 
 			// Open file
-			std::ofstream fh("spanwiseAverage.dat");
+			std::string delimiter = ".";
+			std::string token = out_file.substr(0, out_file.find(delimiter));
+			std::string out_file2 = token+".dat";
+			std::ofstream fh(out_file2);
 
 			const std::string title = "SPANWISE AVERAGE";
 				
@@ -201,8 +205,7 @@ namespace pptb::analysis
 			fh.close();
 
 			// Also write a VTK file just because
-			const int max_vars = 100;
-			io::write_vtk_data<value_type>("spanwiseAverage.vtk", geom, max_vars);
+			io::write_vtk_data<value_type>(out_file, geom);
 			
 		} // End export
 	};

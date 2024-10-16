@@ -24,13 +24,13 @@ int main(int argc, char** argv)
 	pptb::io::import_vtk(input_filename, geom_in);
 	
 	// Rotate geometry
-	pptb::analysis::transform_vtk<pptb::analysis::rotate>(geom_in, 2, 180.0);
+	pptb::analysis::transform_vtk<pptb::analysis::rotate>(geom_in, 2, 270.0);
 
 	// Component lambda
 	std::string varname = "Components";
 	auto modify = [&](const auto& xyz, const auto& oldComp)
 	{
-		int newComp = 3;
+		int newComp = 4;
 		
 		return newComp;
 	};

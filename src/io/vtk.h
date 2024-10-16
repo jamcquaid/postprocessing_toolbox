@@ -47,7 +47,7 @@ namespace pptb::io
 	}
 
 	template <typename rtype, typename geom_t, const vtk_file_type file_type = surface_vtk>
-	inline void write_vtk_data(const std::string& filename, const geom_t& geom, const std::size_t& maxVars = 10000)
+	inline void write_vtk_data(const std::string& filename, const geom_t& geom)
 	{
 		if constexpr(file_type == surface_vtk)
 		{
@@ -84,7 +84,7 @@ namespace pptb::io
 			}
 			fh << "CELL_DATA " << geom.connect.size() << "\n";
 
-			for (int ivar = 0; ivar<std::min(geom.varnames.size(), maxVars); ivar++)
+			for (int ivar = 0; ivar<geom.varnames.size(); ivar++)
 			{
 				fh << "SCALARS " << geom.varnames[ivar] << " double\nLOOKUP_TABLE default\n";
 				for (std::size_t i = 0; i < geom.connect.size(); ++i)

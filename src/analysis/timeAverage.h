@@ -8,13 +8,13 @@ namespace pptb::analysis
 		// Member variables
 		std::size_t min_nt;
 		std::size_t max_nt;
-		std::size_t max_vars;
+		std::string out_fname;
 
 		// Geometry structure to store data
 		geom::surf_geom_t<value_type> geom;
 
 		// Constructor
-    	timeAverage_t(const auto& minNt_in, const auto& maxNt_in, const auto& maxVars_in, const auto& fileStruct) : min_nt{minNt_in}, max_nt{maxNt_in}, max_vars{maxVars_in}
+    	timeAverage_t(const auto& minNt_in, const auto& maxNt_in, const std::string& out_fname_in, const auto& fileStruct) : min_nt{minNt_in}, max_nt{maxNt_in}, out_fname{out_fname_in}
 		{
 			print("Beginning time average over range min, max = ",min_nt, max_nt);
 
@@ -25,12 +25,21 @@ namespace pptb::analysis
 			// Run loop over remaining files
 			value_type running_time = 1.0;
 			for (int n = 1; n<fileStruct.nFiles; n++)
-			{
-				print("   Importing file = ",n+1);
-				
+			{				
 				// Temporary structure
 				geom::surf_geom_t<value_type> tmp_geom;
 
+				// Extract integer from filename
+				std::string tmp = fileStruct.filenames[n];
+				size_t begin    = tmp.find_first_of("0123456789");
+				size_t end      = tmp.find_last_of("0123456789");
+				std::string num = tmp.substr(begin, end - begin + 1);
+				int nt          = std::atoi(num.c_str());
+
+				if (nt < min_nt || nt > max_nt) continue;
+
+				print("Importing file = ",n+1);
+				
 				// Import this file
 				io::import_vtk(fileStruct.filenames[n], tmp_geom, false);
 
@@ -41,7 +50,7 @@ namespace pptb::analysis
 				
 				// Run time-average into main structure
 				print("   Averaging data...");
-				for (int ivar = 0; ivar<std::min(geom.varnames.size(), max_vars); ivar++)
+				for (int ivar = 0; ivar<geom.varnames.size(); ivar++)
 				{
 					for (int f = 0; f<geom.connect.size(); f++)
 					{
@@ -55,7 +64,7 @@ namespace pptb::analysis
 		// Write output VTK
 		void export_data()
 		{
-			io::write_vtk_data<value_type>("timeAverage.vtk", geom, max_vars);
+			io::write_vtk_data<value_type>(out_fname, geom);
 		}
 		
 	};
