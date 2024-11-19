@@ -1,0 +1,20 @@
+Some quick instructions on this slice extract tool. This script needs to access the SCIDF library, so make sure this environment path is setup and pointing to the same SCIDF reposity that is being used for the Whoosh CHAMPS+ software. This tool will only work for slicing surface data in the *.VTK format. Based on the slice settings in the "input.sdf" file, this script will run intersection tests on surface elements which intersect the specified plane and use that elements data to form a 2D slice output for plotting local surface data distributions at different spanwise stations.
+
+Steps:
+1. The instantaneous or time-averaged surface file should be placed in the same directory as this README file. Adjust the "input_filename" in the "input.sdf" file to point
+   at the surface file you wish to slice
+2. Modify the "input.sdf" file to add/reduce or modify the slice plane settings. Each slice plane is specified by first referencing the 2D plane of interest (i.e. XY, YZ, XZ)
+   and a point coordinate in the plane normal direction. For example, an XY slice plane taken at a z-coordinate of 0.1
+
+   Slice1
+   {
+	slice_plane = "XY"
+	position    = 0.1
+   }
+
+3. The "normalize_coord" flag specifies whether you want the outputted coordinates in the DAT file to be normalized. "normalize_dir" specifies the normalization direction. For example,
+   if the streamwise direction is X, normalize_dir = 0 is normalizing in the X direction (assuming that normalize_coord = true) such that each slice section will have its X coordinates
+   normalized from x/L = 0 to x/L = 1, where L is the identified chord length for this local slice section. Tangential directions will also be normalized by L.
+4. Build the script with "make"
+5. Run the script with "./pptb.x"
+6. All slices will be written to a single tecplot DAT file titled "surface_slices.dat" unless the output filename is modified in the input file.

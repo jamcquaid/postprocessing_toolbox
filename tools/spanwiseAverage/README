@@ -1,0 +1,11 @@
+Some quick instructions on this spanwise averaging tool. This script needs to access the SCIDF library, so make sure this environment path is setup and pointing to the same SCIDF reposity that is being used for the Whoosh CHAMPS+ software. This tool will only work for spanwise averaging surface data in the *.VTK format. This tool will first perform a 3D time average followed by a spanwise averaging.
+
+Steps:
+1. Place all surface files to be used in the averaging into the "data" directory
+2. Modify the "input.sdf" file if you wish to only include a reduced timestep range for averaging. Surface file names are formatted as "vsurf%d.vtk" where %d is the timestep.
+   Adjusting min_stp and max_stp will include/exclude files based on the "%d" identifier on each filename
+3. Adjust the averaging direction by adjusting "average_dir" in the "input.sdf" file
+4. Build the script with "make"
+5. Run the script with "./pptb.x"
+6. Time averaged file will be written to "timeAverage.vtk" unless the default name is modified in the "input.sdf" file. The spanwise average will be written to a VTK file format
+   (to view in visit/paraview) and to a tecplot DAT file

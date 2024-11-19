@@ -1,0 +1,9 @@
+Some quick instructions on this time-averaging tool. This script needs to access the SCIDF library, so make sure this environment path is setup and pointing to the same SCIDF reposity that is being used for the Whoosh CHAMPS+ software. This tool will only work for time-averaging surface data in the *.VTK format.
+
+Steps:
+1. Place all surface files to be used in the time-averaging into the "data" directory
+2. Modify the "input.sdf" file if you wish to only include a reduced timestep range for averaging. Surface file names are formatted as "vsurf%d.vtk" where %d is the timestep.
+   Adjusting min_stp and max_stp will include/exclude files based on the "%d" identifier on each filename
+3. Build the script with "make"
+4. Run the script with "./pptb.x"
+5. Time averaged file will be written to "timeAverage.vtk" unless the default name is modified in the "input.sdf" file

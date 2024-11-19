@@ -7,7 +7,8 @@ namespace pptb::analysis
 		rotate,
 		translate,
 		scale,
-		merge
+		merge,
+		gen
 	};
 
 	template <const transform_type ttype, typename real_t>
@@ -86,6 +87,22 @@ namespace pptb::analysis
 					xyz_new[i] += rot(i,j) * xyz_old[j];
 				}
 			}
+		}
+	}
+
+	template <const transform_type ttype, typename real_t, typename func_t>
+	requires(ttype == gen)
+	static void transform_vtk(geom::surf_geom_t<real_t>& geom, const func_t& func)
+	{
+		utils::mat_t<real_t, 3> rot;
+
+		print("Manipulating coordinates with provided lambda...");
+		for (int n = 0; n< geom.nodes.size(); ++n)
+		{
+			// Get current node coordinates
+			auto  xyz_old = geom.nodes[n];
+			auto& xyz_new = geom.nodes[n];
+			xyz_new = func(xyz_old);
 		}
 	}
 

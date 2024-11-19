@@ -1,0 +1,8 @@
+Config
+{
+	min_nt   = 0
+	max_nt   = 10000000
+	average_dir = 2
+	out_file_timeAverage = "timeAverage.vtk"
+	out_file_spanAverage = "spanwiseAverage.vtk"
+}

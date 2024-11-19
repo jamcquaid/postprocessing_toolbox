@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 	std::vector<std::string> slice_name;
 	std::vector<std::string> slice_plane;
 	std::vector<real_t> slice_pos;
+	std::vector<std::string> slice_file;
 	const bool normalize_coord = input["Config"]["normalize_coord"];
 	const int  normalize_dir   = input["Config"]["normalize_dir"];
 	for (auto& p: node.children)
@@ -27,12 +28,23 @@ int main(int argc, char** argv)
 
 		// Slice settings
 		std::string plane_tmp = node_local["slice_plane"];
-		real_t pos_tmp        = node_local["position"];
+		real_t pos_tmp = -10.0;
+		std::string file_tmp = "";
+		if (plane_tmp == "file")
+		{
+			std::string test = node_local["file"];
+			file_tmp = test;
+		}
+		else
+		{
+			pos_tmp = node_local["position"];
+		}
 
 		// Push into vector
 		slice_name.push_back(name);
 		slice_plane.push_back(plane_tmp);
 		slice_pos.push_back(pos_tmp);
+		slice_file.push_back(file_tmp);
 	}
 	
 	// Call vtk file importer
@@ -41,7 +53,7 @@ int main(int argc, char** argv)
 	pptb::io::import_vtk(input_filename, geom);
 	
 	// Setup slice operator
-	pptb::analysis::plane_slice_t<real_t> plane_slice(slice_name, slice_plane, slice_pos, normalize_coord, normalize_dir);
+	pptb::analysis::plane_slice_t<real_t> plane_slice(slice_name, slice_plane, slice_pos, slice_file, normalize_coord, normalize_dir);
 
 	// Run slice operation on specified geometry structure
 	plane_slice.extract_data(geom);

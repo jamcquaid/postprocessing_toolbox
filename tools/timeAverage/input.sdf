@@ -1,0 +1,6 @@
+Config
+{
+	min_nt   = 0
+	max_nt   = 10000000
+	out_file = "vsurf00000000.vtk"
+}

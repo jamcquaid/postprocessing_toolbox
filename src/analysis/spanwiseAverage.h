@@ -18,13 +18,14 @@ namespace pptb::analysis
 			print("Slicing 3D structure...");
 			std::vector<std::string> slice_name{"spanwiseAverage"};
 			std::vector<std::string> slice_plane;
+			std::vector<std::string> slice_file{""};
 			if (idir == 0) slice_plane.push_back("YZ");
 			if (idir == 1) slice_plane.push_back("XZ");
 			if (idir == 2) slice_plane.push_back("XY");
 			const std::vector<value_type> slice_pos{0.0};
 			const bool normalize_coord    = false;
 			const bool normalize_dir      = 0;
-			plane_slice_t<value_type> plane_slice(slice_name, slice_plane, slice_pos, normalize_coord, normalize_dir);
+			plane_slice_t<value_type> plane_slice(slice_name, slice_plane, slice_pos, slice_file, normalize_coord, normalize_dir);
 
 			// Slice data
 			plane_slice.extract_data(geom3D);
