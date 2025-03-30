@@ -1,6 +1,7 @@
 // Main header file for the post-processing toolbox
+#pragma once
 
-
+#include "spade.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -8,7 +9,7 @@
 #include <sstream>
 #include <array>
 #include <cmath>
-#include "utils/print.h"
+//#include "utils/print.h"
 #include "utils/utils.h"
 #include "io/io.h"
 #include "geom/geom.h"

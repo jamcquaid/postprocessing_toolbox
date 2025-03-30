@@ -15,7 +15,7 @@ namespace pptb::analysis
 	requires(ttype == rotate)
 	static void transform_vtk(geom::surf_geom_t<real_t>& geom, const int& rotate_dir, const real_t& rotate_angle)
 	{
-		utils::mat_t<real_t, 3> rot;
+		spade::linear_algebra::dense_mat<real_t, 3> rot;
 
 		print("Building rotation matrix...");
 		
@@ -94,7 +94,7 @@ namespace pptb::analysis
 	requires(ttype == gen)
 	static void transform_vtk(geom::surf_geom_t<real_t>& geom, const func_t& func)
 	{
-		utils::mat_t<real_t, 3> rot;
+		spade::linear_algebra::dense_mat<real_t, 3> rot;
 
 		print("Manipulating coordinates with provided lambda...");
 		for (int n = 0; n< geom.nodes.size(); ++n)

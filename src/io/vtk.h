@@ -1,3 +1,7 @@
+#pragma once
+
+#include <iomanip>
+
 namespace pptb::io
 {
 	enum vtk_file_type
@@ -14,6 +18,7 @@ namespace pptb::io
 
 			// Open file
 			std::ofstream fh(filename);
+			fh << std::fixed << std::setprecision(10);
 
 			// Write header
 			fh << "# vtk DataFile Version 3.0\nvtk output\nASCII\nDATASET POLYDATA\nPOINTS " << geom.nodes.size() << " double\n";
@@ -55,6 +60,7 @@ namespace pptb::io
 
 			// Open file
 			std::ofstream fh(filename);
+			fh << std::fixed << std::setprecision(10);
 
 			// Write header
 			fh << "# vtk DataFile Version 3.0\nvtk output\nASCII\nDATASET POLYDATA\nPOINTS " << geom.nodes.size() << " double\n";
@@ -111,7 +117,7 @@ namespace pptb::io
 		print("Importing vtk file --> ",filename);
 
 		// Open file
-		utils::ascii_file_t fh(filename);
+		spade::utils::ascii_file_t fh(filename);
 
 		// Skip header lines
 		fh.next_line();
@@ -194,7 +200,7 @@ namespace pptb::io
 		}
 		
 		// Reopen file
-		utils::ascii_file_t file(filename);
+		spade::utils::ascii_file_t file(filename);
 
 		// Skip lines we've already read
 		for (int n = 0; n<5+nVerts+1+nElem+1; n++) file.next_line();

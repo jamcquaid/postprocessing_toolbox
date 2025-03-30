@@ -1,3 +1,4 @@
+#pragma once
 #include <algorithm>
 
 namespace pptb::analysis
@@ -72,7 +73,7 @@ namespace pptb::analysis
 
 			// First check for number of points in file
 			int count = 0;
-			utils::ascii_file_t fh(slice_file[n]);
+			spade::utils::ascii_file_t fh(slice_file[n]);
 			while (!fh.eof())
 			{
 				fh.next_line();
@@ -87,7 +88,7 @@ namespace pptb::analysis
 			fh.fh.close();
 
 			// Reopen file
-			utils::ascii_file_t file(slice_file[n]);
+			spade::utils::ascii_file_t file(slice_file[n]);
 
 			// Import data
 			for (int i = 0; i<slice_points.size(); ++i)
@@ -124,21 +125,21 @@ namespace pptb::analysis
 					slice_plane[n] = 2;
 					planes[n].nvec = {0.0, 0.0, 1.0};
 					planes[n].tvec = {1.0, 0.0, 0.0};
-					planes[n].mvec = utils::cross_prod(planes[n].nvec, planes[n].tvec);
+					planes[n].mvec = spade::ctrs::cross_prod(planes[n].nvec, planes[n].tvec);
 				}
 				else if (slice_plane_in[n] == "XZ" || slice_plane_in[n] == "ZX")
 				{
 					slice_plane[n] = 1;
 					planes[n].nvec = {0.0, 1.0, 0.0};
 					planes[n].tvec = {1.0, 0.0, 0.0};
-					planes[n].mvec = utils::cross_prod(planes[n].nvec, planes[n].tvec);
+					planes[n].mvec = spade::ctrs::cross_prod(planes[n].nvec, planes[n].tvec);
 				}
 				else if (slice_plane_in[n] == "YZ" || slice_plane_in[n] == "ZY")
 				{
 					slice_plane[n] = 0;
 					planes[n].nvec = {1.0, 0.0, 0.0};
 					planes[n].tvec = {0.0, 1.0, 0.0};
-					planes[n].mvec = utils::cross_prod(planes[n].nvec, planes[n].tvec);
+					planes[n].mvec = spade::ctrs::cross_prod(planes[n].nvec, planes[n].tvec);
 				}
 				else if (slice_plane_in[n] == "file")
 				{
@@ -168,7 +169,7 @@ namespace pptb::analysis
 			vec[1] = xyz[1] - planes[islice].pt[1];
 			vec[2] = xyz[2] - planes[islice].pt[2];
 
-			return utils::dot_prod(vec, planes[islice].nvec);
+			return spade::ctrs::dot_prod(vec, planes[islice].nvec);
 		}
 
 		// Distance to plane
@@ -178,7 +179,7 @@ namespace pptb::analysis
 			vec[0] = xyz[0] - planes[islice].pt[0];
 			vec[1] = xyz[1] - planes[islice].pt[1];
 			vec[2] = xyz[2] - planes[islice].pt[2];
-			const auto dist = utils::dot_prod(vec, planes[islice].nvec);
+			const auto dist = spade::ctrs::dot_prod(vec, planes[islice].nvec);
 
 			// Projection
 			projPt[0] = xyz[0] - dist * planes[islice].nvec[0];
@@ -327,7 +328,7 @@ namespace pptb::analysis
 						const auto centroid = surface.centroid(n);
 
 						// Compute distance
-						const value_type dist = utils::array_norm(xyz, centroid);
+						const value_type dist = spade::ctrs::array_norm(xyz, centroid);
 
 						if (dist < minDist)
 						{
@@ -395,9 +396,9 @@ namespace pptb::analysis
 				const auto& node2 = surface.nodes[connect[2]];
 
 				// Grid spacings
-				const auto dx0   = utils::array_norm(node0, node1);
-				const auto dx1   = utils::array_norm(node0, node2);
-				const auto dx2   = utils::array_norm(node1, node2);
+				const auto dx0   = spade::ctrs::array_norm(node0, node1);
+				const auto dx1   = spade::ctrs::array_norm(node0, node2);
+				const auto dx2   = spade::ctrs::array_norm(node1, node2);
 
 				// Average spacing
 				dx_avg += (dx0 + dx1 + dx2) / value_type(3.0 * surface.connect.size());

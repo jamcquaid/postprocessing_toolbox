@@ -1,3 +1,5 @@
+#pragma once
+
 namespace pptb::analysis
 {
 	template <std::floating_point rtype>

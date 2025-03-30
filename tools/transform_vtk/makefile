@@ -46,7 +46,7 @@ cc := ${cc_h}
 flags := ${hflags}
 
 main:
-	${cc} ${flags} -I${PPTB}/src main.cc -o ${target}
+	${cc} ${flags} -I${SCIDF}/src -I${SPADE}/src -I${PPTB}/src main.cc -o ${target}
 
 run: main
 	./${target}

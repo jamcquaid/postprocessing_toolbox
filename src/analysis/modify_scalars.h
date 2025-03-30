@@ -1,3 +1,5 @@
+#pragma once
+
 namespace pptb::analysis
 {
 	template <typename real_t, typename kernel_t>
