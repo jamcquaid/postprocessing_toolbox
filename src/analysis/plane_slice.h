@@ -171,7 +171,7 @@ namespace pptb::analysis
 		
 		// Constructor --> slice select based on Cartesian planes
 	    plane_slice_t(const auto& slice_name_in, const auto& slice_plane_in, const auto& slice_pos_in,
-					  const auto& slice_file_in, const auto& truncate_in, const auto& scaling_in, const bool& norm_coord_in = false, const int& norm_dir_in = 0)
+					  const auto& slice_file_in, const std::vector<truncate_t<value_type>>& truncate_in, const value_type& scaling_in, const bool& norm_coord_in = false, const int& norm_dir_in = 0)
 		: slice_pos{slice_pos_in}, slice_file{slice_file_in}, normalize_coord{norm_coord_in}, normalize_dir{norm_dir_in}, scaling{scaling_in}
 		{
 			print("Initializing slice operator...");
@@ -234,7 +234,7 @@ namespace pptb::analysis
 				if (slice_plane[n] < 3) planes[n].pt = get_plane_pt(n);
 
 				// Save truncation settings
-				truncate[n] = truncate_in[n];
+				if (truncate_in.size() > 0) truncate[n] = truncate_in[n];
 				truncate[n].val *= scaling;
 
 				// Write details to screen

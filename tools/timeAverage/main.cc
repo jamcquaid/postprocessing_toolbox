@@ -1,7 +1,7 @@
 #include "pptb.h"
 #include "scidf.h"
 
-using real_t = float;
+using real_t = double;
 
 int main()
 {

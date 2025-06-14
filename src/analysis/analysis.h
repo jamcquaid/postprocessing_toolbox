@@ -7,4 +7,3 @@
 #include "gas.h"
 #include "similaritySolver.h"
 #include "integrate_loads.h"
-#include "surface_grid.h"

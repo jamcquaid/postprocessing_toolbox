@@ -19,8 +19,10 @@ int main(int argc, char** argv)
 	std::vector<std::string> slice_plane;
 	std::vector<real_t> slice_pos;
 	std::vector<std::string> slice_file;
-	const bool normalize_coord = input["Config"]["normalize_coord"];
-	const int  normalize_dir   = input["Config"]["normalize_dir"];
+	std::vector<pptb::analysis::truncate_t<real_t>> truncate;
+	const bool normalize_coord = scidf::default_to<bool>(false, input["Config"]["normalize_coord"]);
+	const int  normalize_dir   = scidf::default_to<int>(0, input["Config"]["normalize_dir"]);
+	const real_t scaling       = scidf::default_to<real_t>(1.0, input["Config"]["slice_scaling"]);
 	for (auto& p: node.children)
 	{
 		const std::string name    = p.first;
@@ -30,7 +32,7 @@ int main(int argc, char** argv)
 		std::string plane_tmp = node_local["slice_plane"];
 		real_t pos_tmp = -10.0;
 		std::string file_tmp = "";
-		if (plane_tmp == "file")
+		if (plane_tmp == "file" || plane_tmp == "3-points")
 		{
 			std::string test = node_local["file"];
 			file_tmp = test;
@@ -39,6 +41,19 @@ int main(int argc, char** argv)
 		{
 			pos_tmp = node_local["position"];
 		}
+
+		// Truncation settings
+		pptb::analysis::truncate_t<real_t> settings{-1,0,0.0};
+		auto& set_type = node_local["cutoff_type"];
+		if (set_type.assigned_value)
+		{
+			const std::string type = node_local["cutoff_type"];
+			if (type == "max") settings.type = 1;
+			else if (type == "min") settings.type = 0;
+			settings.dir  = node_local["cutoff_variable"];
+			settings.val  = node_local["cutoff_value"];
+		}
+		truncate.push_back(settings);
 
 		// Push into vector
 		slice_name.push_back(name);
@@ -53,7 +68,7 @@ int main(int argc, char** argv)
 	pptb::io::import_vtk(input_filename, geom);
 	
 	// Setup slice operator
-	pptb::analysis::plane_slice_t<real_t> plane_slice(slice_name, slice_plane, slice_pos, slice_file, normalize_coord, normalize_dir);
+	pptb::analysis::plane_slice_t<real_t> plane_slice(slice_name, slice_plane, slice_pos, slice_file, truncate, scaling, normalize_coord, normalize_dir);
 
 	// Run slice operation on specified geometry structure
 	plane_slice.extract_data(geom);

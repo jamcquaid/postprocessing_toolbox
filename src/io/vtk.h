@@ -109,53 +109,6 @@ namespace pptb::io
 		}
 	}
 
-	template <typename rtype>
-	inline void write_vtk_data(const std::string& filename, const spade::geom::voronoi_geom_t<3, rtype>& geom)
-	{
-		print("Writing surface VTK file...");
-
-		// Open file
-		std::ofstream fh(filename);
-		fh << std::fixed << std::setprecision(10);
-
-		// Write header
-		fh << "# vtk DataFile Version 3.0\nvtk output\nASCII\nDATASET POLYDATA\nPOINTS " << geom.points.size() << " double\n";
-
-		for (std::size_t i = 0; i < geom.points.size(); ++i)
-		{
-			fh << geom.points[i][0] << " ";
-			fh << geom.points[i][1] << " ";
-			fh << geom.points[i][2] << "\n";
-		}
-		
-		std::size_t nelem = 0;
-		for (std::size_t i = 0; i < geom.nfaces(); ++i)
-		{
-			nelem += geom.face2node_count[i]+1;
-		}
-		
-		fh << "POLYGONS " << geom.nfaces() << " " << nelem << "\n";
-		for (std::size_t i = 0; i < geom.nfaces(); ++i)
-		{
-			fh << geom.face2node_count[i] << " ";
-			for (int j = 0; j<geom.face2node_count[i]; ++j)
-			{
-				fh << geom.face2node_data[geom.face2node_start[i]+j] << " ";
-			}
-			fh<<std::endl;
-		}
-		
-		fh << "CELL_DATA " << geom.nfaces() << "\n";
-		fh << "SCALARS " << "Components" << " double\nLOOKUP_TABLE default\n";
-		for (std::size_t i = 0; i < geom.nfaces(); ++i)
-		{
-			fh << geom.component[i] << "\n";
-		}
-			
-		// Close file
-		fh.close();
-	}
-
 	template <typename geom_t>
 	inline void import_vtk(const std::string& filename, geom_t& geom, const bool& verbose = true)
 	{

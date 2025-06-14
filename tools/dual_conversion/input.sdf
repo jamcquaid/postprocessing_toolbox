@@ -1,8 +1,0 @@
-Config
-{
-	input_filename  = "HARV_4fins.vtk"
-	output_filename = "HARV_4fins_voronoi.vtk"
-//	input_filename  = "cube_1m_1k.vtk"
-//	output_filename = "cube_voronoi_1m.vtk"
-	nsmooth         = 100
-}

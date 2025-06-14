@@ -27,7 +27,8 @@ namespace pptb::analysis
 			const std::vector<value_type> slice_pos{0.0};
 			const bool normalize_coord    = false;
 			const bool normalize_dir      = 0;
-			plane_slice_t<value_type> plane_slice(slice_name, slice_plane, slice_pos, slice_file, normalize_coord, normalize_dir);
+			std::vector<truncate_t<value_type>> truncate;
+			plane_slice_t<value_type> plane_slice(slice_name, slice_plane, slice_pos, slice_file, truncate, value_type(1.0), normalize_coord, normalize_dir);
 
 			// Slice data
 			plane_slice.extract_data(geom3D);
